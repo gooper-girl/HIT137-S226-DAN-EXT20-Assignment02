@@ -48,3 +48,22 @@ def tokens_to_string(tokens):
         else:
             pieces.append("[" + token["type"] + ":" + token["value"] + "]")
     return " ".join(pieces)
+
+def parse_primary(tokens, pos):
+    token = tokens[pos]
+    
+    if token["type"] == "NUM":
+        node = {"kind": "num", "value": token["value"]}
+        return node, pos + 1
+    
+    if token["type"] == "LPAREN":
+        pos = pos + 1
+        node, pos = parse_expression(tokens, pos)
+        if node is None:
+            return None, pos
+        if tokens[pos]["type"] != "RPAREN":
+            return None, pos
+        pos = pos + 1
+        return node, pos
+    
+    return None, pos
