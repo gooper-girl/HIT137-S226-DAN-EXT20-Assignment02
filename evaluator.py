@@ -81,3 +81,18 @@ def parse_power(tokens, pos):
         left = {"kind": "binop", "op": "^", "left": left, "right": right}
         
     return left, pos
+
+def parse_unary(tokens, pos):
+    token = tokens[pos]
+    
+    if token["type"] == "OP" and token["value"] == "-":
+        pos = pos + 1
+        operand, pos = parse_unary(tokens, pos)
+        if operand is None:
+            return None, pos
+        return {"kind": "neg", "operand": operand}, pos
+    
+    if token["type"] == "OP" and token["value"] == "+":
+        return None, pos
+    
+    return parse_power(tokens, pos)
