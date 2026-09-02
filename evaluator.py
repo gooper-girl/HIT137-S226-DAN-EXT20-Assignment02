@@ -67,3 +67,17 @@ def parse_primary(tokens, pos):
         return node, pos
     
     return None, pos
+
+def parse_power(tokens, pos):
+    left, pos = parse_primary(tokens, pos)
+    if left is None:
+        return None, pos
+    
+    if tokens[pos]["type"] == "OP" and tokens[pos]["value"] == "^":
+        pos = pos + 1
+        right, pos = parse_unary(tokens, pos)
+        if right is None:
+            return None, pos
+        left = {"kind": "binop", "op": "^", "left": left, "right": right}
+        
+    return left, pos
