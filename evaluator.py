@@ -96,3 +96,30 @@ def parse_unary(tokens, pos):
         return None, pos
     
     return parse_power(tokens, pos)
+
+def parse_term(tokens, pos):
+    left, pos = parse_unary(tokens, pos)
+    if left is None:
+        return None, pos
+    
+    while True:
+        token = tokens[pos]
+        
+        if token["type"] == "OP" and token["value"] in ("*", "/", "%"):
+            operator = token["value"]
+            pos = pos + 1
+            right, pos = parse_unary(tokens, pos)
+            if right is None:
+                return None, pos
+            left = {"kind": "binop", "op": operator, "left": left, "right": right}
+            
+        elif token["type"] == "LPAREN":
+            right, pos = parse_unary(tokens, pos)
+            if right is None:
+                return None, pos
+            left = {"kind": "binop", "op": "*", "left": left, "right": right}
+            
+        else:
+            break
+        
+    return left, pos
