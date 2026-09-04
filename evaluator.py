@@ -123,3 +123,38 @@ def parse_term(tokens, pos):
             break
         
     return left, pos
+
+def parse_expression(tokens, pos):
+    left, pos = parse_term(tokens, pos)
+    if left is None:
+        return None, pos
+    
+    while tokens[pos]["type"] == "OP" and tokens[pos]["value"] in ("+", "-"):
+        operator = tokens[pos]["value"]
+        pos = pos + 1
+        right, pos = parse_term(tokens, pos)
+        if right is None:
+            return None, pos
+        left = {"kind": "binop", "op": operator, "left": left, "right": right}
+    
+    return left, pos
+    
+def parse(tokens):
+    tree, pos = parse_expression(tokens, 0)
+    if tree is None:
+        return None
+    if tokens[pos]["type"] != "END":
+        return None
+    return tree
+
+def tree_to_string(node):
+    if node["kind"] == "num":
+        return node["value"]
+    
+    if node["kind"] == "neg":
+        return "(neg " + tree_to_string(node["operand"]) + ")"
+    
+    if node["kind"] == "binop":
+        left_text = tree_to_string(node["left"])
+        right_text = tree_to_string(node["right"])
+        return "(" + node["op"] + " " + left_text + " " + right_text + ")"
