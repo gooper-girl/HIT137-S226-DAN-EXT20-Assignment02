@@ -158,3 +158,34 @@ def tree_to_string(node):
         left_text = tree_to_string(node["left"])
         right_text = tree_to_string(node["right"])
         return "(" + node["op"] + " " + left_text + " " + right_text + ")"
+    
+def evaluate_tree(node):
+    if node["kind"] == "num":
+        return float(node["value"])
+    
+    if node ["kind"] == "neg":
+        return -evaluate_tree(node["operand"])
+    
+    if node["kind"] == "binop":
+        left_value = evaluate_tree(node["left"])
+        right_value = evaluate_tree(node["right"])
+        op = node["op"]
+        
+        if op == "+":
+            return left_value + right_value
+        if op == "-":
+            return left_value - right_value
+        if op == "*":
+            return left_value * right_value
+        if op == "/":
+            return left_value / right_value
+        if op == "%":
+            return left_value % right_value
+        if op == "^":
+            return left_value ** right_value
+        
+def format_result(value):
+    if value == int(value):
+        return str(int(value))
+    return str(round(value, 4))
+
