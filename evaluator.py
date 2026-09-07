@@ -189,3 +189,66 @@ def format_result(value):
         return str(int(value))
     return str(round(value, 4))
 
+def evaluate_file(input_path: str) -> list[dict]:
+    with open(input_path, "r") as input_file:
+        lines = input_file.readlines()
+        
+    results = []
+    
+    for line in lines:
+        expression = line.strip()
+        if expression == "":
+            continue
+        
+        entry = {"input": expression}
+        
+        tokens = tokenize(expression)
+        if tokens is None:
+            entry["tree"] = "ERROR"
+            entry["tokens"] = "ERROR"
+            entry["result"] = "ERROR"
+            results.append(entry)
+            continue
+        
+        entry["tokens"] = tokens_to_string(tokens)
+        
+        tree = parse(tokens)
+        if tree is None:
+            entry["tree"] = "ERROR"
+            entry["result"] = "ERROR"
+            results.append(entry)
+            continue
+        
+        entry["tree"] = tree_to_string(tree)
+        
+        try:
+            entry["result"] = evaluate_tree(tree)
+        except ZeroDivisionError:
+            entry["result"] = "ERROR"
+            
+        results.append(entry)
+        
+    output_folder = os.path.dirname(os.path.abspath(input_path))
+    output_path = os.path.join(output_folder, "output.txt")
+    write_output_file(results, output_path)
+        
+    return results
+    
+    
+def write_output_file(results, output_path):
+    with open(output_path, "w") as output_file:
+        for i in range(len(results)):
+            entry = results[i]
+            
+            if entry["result"] == "ERROR":
+                result_text = "ERROR"
+            else:
+                result_text = format_result(entry["result"])
+                
+            output_file.write("Input: " + entry["input"] + "\n")
+            output_file.write("Tree: " + entry["tree"] + "\n")
+            output_file.write("Tokens: " + entry["tokens"] + "\n")
+            output_file.write("Result: " + result_text + "\n")
+            
+            if i != len(results) -1:
+                output_file.write("\n")
